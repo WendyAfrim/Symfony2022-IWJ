@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ car.matriculation }}{% endblock %}
+
+{% block body %}
+    Voiture n° {{ car.matriculation}} <br>
+
+    <table border="1">
+        <tr>
+            <th>Model</th>
+            <th>Nb chevaux</th>
+            <th>Immat</th>
+            <th>Date Immat</th>
+        </tr>
+        <tr>
+            <td>{{ car.model }}</td>
+            <td>{{ car.horsePower }}</td>
+            <td>{{ car.matriculation }}</td>
+            <td>{{ car.matriculationDate|date('d/m/Y') }}</td>
+        </tr>
+    </table>
+
+    <br>
+
+    <a href="{{ path('car_index') }}">Voir la liste des voitures</a>
+{% endblock %}

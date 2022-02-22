@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des voitures de mon parking{% endblock %}
+
+{% block body %}
+    Liste des voitures : <br>
+
+    <table border="1">
+        <tr>
+            <th>Model</th>
+            <th>Nb chevaux</th>
+            <th>Immat</th>
+            <th>Date Immat</th>
+            <th></th>
+        </tr>
+        {% for car in cars %}
+            <tr>
+                <td>{{ car.model }}</td>
+                <td>{{ car.horsePower }}</td>
+                <td>{{ car.matriculation }}</td>
+                <td>{{ car.matriculationDate|date('d/m/Y') }}</td>
+                <td>
+                    <a href="{{ path('car_show', {'id': car.id}) }}">Voir</a>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
