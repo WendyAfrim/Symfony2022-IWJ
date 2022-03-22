@@ -2,15 +2,15 @@
 
 namespace App\Entity;
 
-use App\Repository\BrandRepository;
+use App\Repository\CustomerRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=BrandRepository::class)
+ * @ORM\Entity(repositoryClass=CustomerRepository::class)
  */
-class Brand
+class Customer
 {
     /**
      * @ORM\Id
@@ -22,10 +22,15 @@ class Brand
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $name;
+    private $lastname;
 
     /**
-     * @ORM\OneToMany(targetEntity=Car::class, mappedBy="brand")
+     * @ORM\Column(type="string", length=255)
+     */
+    private $firstname;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=Car::class, mappedBy="owner")
      */
     private $cars;
 
@@ -39,14 +44,26 @@ class Brand
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getLastname(): ?string
     {
-        return $this->name;
+        return $this->lastname;
     }
 
-    public function setName(string $name): self
+    public function setLastname(string $lastname): self
     {
-        $this->name = $name;
+        $this->lastname = $lastname;
+
+        return $this;
+    }
+
+    public function getFirstname(): ?string
+    {
+        return $this->firstname;
+    }
+
+    public function setFirstname(string $firstname): self
+    {
+        $this->firstname = $firstname;
 
         return $this;
     }
@@ -63,7 +80,7 @@ class Brand
     {
         if (!$this->cars->contains($car)) {
             $this->cars[] = $car;
-            $car->setBrand($this);
+            $car->addOwner($this);
         }
 
         return $this;
@@ -72,10 +89,7 @@ class Brand
     public function removeCar(Car $car): self
     {
         if ($this->cars->removeElement($car)) {
-            // set the owning side to null (unless already changed)
-            if ($car->getBrand() === $this) {
-                $car->setBrand(null);
-            }
+            $car->removeOwner($this);
         }
 
         return $this;

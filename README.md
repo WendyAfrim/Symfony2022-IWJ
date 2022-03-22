@@ -40,3 +40,14 @@ docker-compose exec php bin/console doctrine:schema:update --dump-sql
 # Executer les requètes en DB
 docker-compose exec php bin/console doctrine:schema:update --force
 ```
+
+#### Fixtures 
+Documentation : https://symfony.com/bundles/DoctrineFixturesBundle/current/index.html
+```
+# Installation 
+docker compose exec php composer require --dev orm-fixtures
+
+# Installtion Faker 
+docker compose exec php composer require --dev fzaninotto/faker
+```
+

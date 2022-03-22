@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Back;
 
 use App\Entity\Car;
 use App\Form\CarType;
@@ -11,19 +11,20 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+#[Route('/car', name:'car_')]
 class CarController extends AbstractController
 {
-    #[Route('/car', name: 'car_index', methods: ['GET'])]
+    #[Route('/', name: 'index', methods: ['GET'])]
     public function index(CarRepository $carRepository): Response
     {
         $cars = $carRepository->findAll();
 
-        return $this->render('car/index.html.twig', [
+        return $this->render('back/car/index.html.twig', [
             'cars' => $cars
         ]);
     }
 
-    #[Route('/car/create', name: 'car_create', methods: ['GET', 'POST'])]
+    #[Route('/create', name: 'create', methods: ['GET', 'POST'])]
     public function create(Request $request, EntityManagerInterface $manager): Response
     {
         $car = new Car();
@@ -34,17 +35,17 @@ class CarController extends AbstractController
             $manager->persist($car);
             $manager->flush();
 
-            return $this->redirectToRoute('car_index');
+            return $this->redirectToRoute('back_car_index');
         }
 
-        return $this->render('car/create.html.twig', [
+        return $this->render('back/car/create.html.twig', [
             'form' => $form->createView()
         ]);
     }
 
     #[Route(
-        '/car/update/{matriculation}',
-        name: 'car_update',
+        '/update/{matriculation}',
+        name: 'update',
         requirements: ['matriculation'=> '[A-Z]{1,3}-[A-Z]{1,3}-[0-9]{1,4}'],
         methods: ['GET', 'POST'])
     ]
@@ -56,33 +57,33 @@ class CarController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $manager->flush();
 
-            return $this->redirectToRoute('car_show', [
+            return $this->redirectToRoute('back_car_show', [
                 'matriculation' => $car->getMatriculation()
             ]);
         }
 
-        return $this->render('car/update.html.twig', [
+        return $this->render('back/car/update.html.twig', [
             'car' => $car,
             'form' => $form->createView()
         ]);
     }
 
     #[Route(
-        '/car/{matriculation}',
-        name: 'car_show',
+        '/{matriculation}',
+        name: 'show',
         requirements: ['matriculation'=> '[A-Z]{1,3}-[A-Z]{1,3}-[0-9]{1,4}'],
         methods: ['GET'])
     ]
     public function show(Car $car): Response
     {
-        return $this->render('car/show.html.twig', [
+        return $this->render('back/car/show.html.twig', [
             'car' => $car
         ]);
     }
 
     #[Route(
-        '/car/delete/{matriculation}/{token}',
-        name: 'car_delete',
+        '/delete/{matriculation}/{token}',
+        name: 'delete',
         requirements: ['matriculation'=> '[A-Z]{1,3}-[A-Z]{1,3}-[0-9]{1,4}'],
         methods: ['GET']
     )]
@@ -95,6 +96,6 @@ class CarController extends AbstractController
         $manager->remove($car);
         $manager->flush();
 
-        return $this->redirectToRoute('car_index');
+        return $this->redirectToRoute('back_car_index');
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Back;
 
 use App\Entity\Brand;
 use App\Form\BrandType;
@@ -17,7 +17,7 @@ class BrandController extends AbstractController
     #[Route('/', name: 'brand_index', methods: ['GET'])]
     public function index(BrandRepository $brandRepository): Response
     {
-        return $this->render('brand/index.html.twig', [
+        return $this->render('back/brand/index.html.twig', [
             'brands' => $brandRepository->findAll(),
         ]);
     }
@@ -33,7 +33,7 @@ class BrandController extends AbstractController
             $entityManager->persist($brand);
             $entityManager->flush();
 
-            return $this->redirectToRoute('brand_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('back_brand_index', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->renderForm('brand/new.html.twig', [
@@ -45,7 +45,7 @@ class BrandController extends AbstractController
     #[Route('/{id}', name: 'brand_show', methods: ['GET'])]
     public function show(Brand $brand): Response
     {
-        return $this->render('brand/show.html.twig', [
+        return $this->render('back/brand/show.html.twig', [
             'brand' => $brand,
         ]);
     }
@@ -59,7 +59,7 @@ class BrandController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('brand_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('back_brand_index', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->renderForm('brand/edit.html.twig', [
@@ -76,6 +76,6 @@ class BrandController extends AbstractController
             $entityManager->flush();
         }
 
-        return $this->redirectToRoute('brand_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('back_brand_index', [], Response::HTTP_SEE_OTHER);
     }
 }

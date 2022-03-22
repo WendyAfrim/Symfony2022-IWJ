@@ -20,9 +20,9 @@
                 <td>{{ car.matriculation }}</td>
                 <td>{{ car.matriculationDate|date('d/m/Y') }}</td>
                 <td>
-                    <a href="{{ path('car_show', {'matriculation': car.matriculation}) }}">Voir</a>
-                    <a href="{{ path('car_update', {'matriculation': car.matriculation}) }}">Modifier</a>
-                    <a href="{{ path('car_delete', {'matriculation': car.matriculation, 'token': csrf_token('delete'~car.id)}) }}">Supprimer</a>
+                    <a href="{{ path('back_car_show', {'matriculation': car.matriculation}) }}">Voir</a>
+                    <a href="{{ path('back_car_update', {'matriculation': car.matriculation}) }}">Modifier</a>
+                    <a href="{{ path('back_car_delete', {'matriculation': car.matriculation, 'token': csrf_token('delete'~car.id)}) }}">Supprimer</a>
                 </td>
             </tr>
         {% endfor %}
