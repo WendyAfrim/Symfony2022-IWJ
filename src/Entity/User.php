@@ -3,7 +3,10 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Carbon\Carbon;
 use Doctrine\ORM\Mapping as ORM;
+use phpDocumentor\Reflection\Types\Boolean;
+use Symfony\Component\Validator\Constraints\Date;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -38,15 +41,22 @@ class User
      */
     private $password;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $birthday;
+    private Carbon $birthday;
 
     /**
      * @ORM\OneToOne(targetEntity=ToDoList::class, mappedBy="validUser", cascade={"persist", "remove"})
      */
     private $toDoList;
+
+
+//    public function __construct(string $firstname, string $lastname, string $email, string $password, Date $birthday)
+//    {
+//        $this->firstname = $firstname;
+//        $this->lastname = $lastname;
+//        $this->email = $email;
+//        $this->password = $password;
+//        $this->birthday = $birthday;
+//    }
 
     public function getId(): ?int
     {
@@ -101,18 +111,22 @@ class User
         return $this;
     }
 
-    public function getBirthday(): ?string
+    /**
+     * @return Carbon
+     */
+    public function getBirthday(): Carbon
     {
         return $this->birthday;
     }
 
-    public function setBirthday(?string $birthday): self
+    /**
+     * @param Carbon $birthday
+     */
+    public function setBirthday(Carbon $birthday): void
     {
         $this->birthday = $birthday;
-
-        return $this;
     }
-
+    
     public function getToDoList(): ?ToDoList
     {
         return $this->toDoList;
@@ -133,5 +147,56 @@ class User
         $this->toDoList = $toDoList;
 
         return $this;
+    }
+
+
+    public function validEmail(string $email) : bool
+    {
+        if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return true;
+        }
+        return false;
+    }
+
+    public function validPassword(string $password) : bool
+    {
+        if (!empty($password) && strlen($password) >= 8 && strlen($password) <= 40) {
+            return true;
+        }
+        return false;
+    }
+
+    public function isNotEmpty(string $firstname, string $lastname) : bool
+    {
+        if (!empty($firstname) && !empty($lastname)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function isMoreThan13(Carbon $birthday) : bool
+    {
+        if (!empty($birthday)) {
+            $age =  Carbon::parse($birthday)->age;
+            if ($age >= 13) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function isValid(User $user) : bool
+    {
+        if (
+            $this->isNotEmpty($user->getFirstname(), $user->getLastname()) &&
+            $this->validEmail($user->getEmail()) &&
+            $this->validPassword($user->getPassword()) &&
+            $this->isMoreThan13($user->getBirthday())
+        ) {
+            return true;
+        }
+
+        return false;
     }
 }
