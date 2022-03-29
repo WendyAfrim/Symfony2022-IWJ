@@ -48,6 +48,11 @@ class User
      */
     private $toDoList;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $hasCreatedToDoList;
+
 
 //    public function __construct(string $firstname, string $lastname, string $email, string $password, Date $birthday)
 //    {
@@ -149,6 +154,17 @@ class User
         return $this;
     }
 
+    public function getHasCreatedToDoList(): ?bool
+    {
+        return $this->hasCreatedToDoList;
+    }
+
+    public function setHasCreatedToDoList(bool $hasCreatedToDoList): self
+    {
+        $this->hasCreatedToDoList = $hasCreatedToDoList;
+
+        return $this;
+    }
 
     public function validEmail(string $email) : bool
     {
@@ -198,5 +214,41 @@ class User
         }
 
         return false;
+    }
+
+    public function createToDoList(User $user): bool
+    {
+        if ($user->isValid($user) && null === $user->hasCreatedToDoList) {
+            // Instanciation de l'objet ToDoList
+            $toDoList = new ToDoList();
+            $toDoList->setName('Test to do list');
+            $toDoList->setCreatedAt(new \DateTimeImmutable());
+
+            $user->setToDoList($toDoList);
+            $user->setHasCreatedToDoList(true);
+
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+
+    public function addItemToToDoList(User $user) : bool
+    {
+       $items = $user->getToDoList()->getItems();
+       $nbItems = sizeof($items);
+
+       if ($nbItems < 10) {
+
+       }
+
+    }
+
+    public function getLastItemCreation(Item $item) : \DateTimeImmutable
+    {
+        $creationDate = $item->getCreatedAt();
+
+        return $creationDate;
     }
 }

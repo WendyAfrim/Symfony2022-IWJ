@@ -2,6 +2,7 @@
 
 
 use App\Entity\User;
+use App\Entity\ToDoList;
 use PHPUnit\Framework\TestCase;
 use Faker\Factory;
 use Carbon\Carbon;
@@ -68,5 +69,36 @@ class UserTest extends TestCase
         $result = $user->isValid($user);
 
         $this->assertTrue($result);
+    }
+
+    public function testIsValidUserHasNotCreateToDoList()
+    {
+        $faker = Factory::create();
+        $user = new User();
+
+        $user->setFirstname('Jane');
+        $user->setLastname('Doe');
+        $user->setEmail('jane@test.com');
+        $user->setPassword('Tkwjf3251cs');
+        $user->setBirthday(Carbon::now()->subYears(15));
+
+        $result = $user->createToDoList($user);
+        $this->assertTrue($result);
+    }
+
+    public function testIsValidUserHasAlreadyCreateToDoList()
+    {
+        $faker = Factory::create();
+        $user = new User();
+
+        $user->setFirstname('Jane');
+        $user->setLastname('Doe');
+        $user->setEmail('jane@test.com');
+        $user->setPassword('Tkwjf3251cs');
+        $user->setBirthday(Carbon::now()->subYears(15));
+        $user->setHasCreatedToDoList(true);
+
+        $result = $user->createToDoList($user);
+        $this->assertFalse($result);
     }
 }

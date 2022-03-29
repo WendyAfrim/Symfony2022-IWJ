@@ -32,6 +32,11 @@ class Item
      */
     private $content;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=ToDoList::class, inversedBy="items")
+     */
+    private $toDoList;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -69,6 +74,18 @@ class Item
     public function setContent(?string $content): self
     {
         $this->content = $content;
+
+        return $this;
+    }
+
+    public function getToDoList(): ?ToDoList
+    {
+        return $this->toDoList;
+    }
+
+    public function setToDoList(?ToDoList $toDoList): self
+    {
+        $this->toDoList = $toDoList;
 
         return $this;
     }
