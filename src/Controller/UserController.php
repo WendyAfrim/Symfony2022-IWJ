@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\ToDoList;
 use App\Entity\User;
+use App\Repository\UserRepository;
 use Carbon\Carbon;
 use Doctrine\ORM\EntityManager;
 use Doctrine\Persistence\ManagerRegistry;
@@ -34,16 +36,47 @@ class UserController extends AbstractController
 
             $user = new User();
 
+            $date = new \DateTime('200'.$i.'-01-02');
+
             $user->setFirstname($faker->firstName);
             $user->setLastname($faker->lastName);
             $user->setEmail($faker->email);
             $user->setPassword($faker->password);
-            $user->setBirthday(Carbon::now()->subYears(15));
+            $user->setBirthday($date);
             $user->setHasCreatedToDoList(false);
 
 
             if (true === $user->isValid($user)) {
                 $em->persist($user);
+            }
+        }
+        $em->flush();
+
+        return $this->render('user/index.html.twig', [
+            'controller_name' => 'UserController',
+        ]);
+    }
+
+    #[Route('/add-to-do-list', name: 'user_add_to_do_list')]
+    public function addToDoList(ManagerRegistry $registry, UserRepository $repository): Response
+    {
+        $faker = Factory::create();
+
+        $em = $registry->getManager();
+
+        $users = $repository->findAll();
+
+        foreach ($users as $user) {
+
+            if($user->isValid($user))
+            {
+                $toDoList = new ToDoList();
+
+                $toDoList->setName($faker->colorName);
+                $toDoList->setCreatedAt(new \DateTimeImmutable());
+
+                $em->persist($toDoList);
+                $user->setToDoList($toDoList);
             }
         }
         $em->flush();

@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\UserRepository;
 use Carbon\Carbon;
 use Doctrine\ORM\Mapping as ORM;
+use Faker\Factory;
 use phpDocumentor\Reflection\Types\Boolean;
 use Symfony\Component\Validator\Constraints\Date;
 
@@ -40,8 +41,7 @@ class User
      * @ORM\Column(type="string", length=255)
      */
     private $password;
-
-    private Carbon $birthday;
+    
 
     /**
      * @ORM\OneToOne(targetEntity=ToDoList::class, mappedBy="validUser", cascade={"persist", "remove"})
@@ -53,15 +53,19 @@ class User
      */
     private $hasCreatedToDoList;
 
+    /**
+     * @ORM\Column(type="datetime", nullable="true")
+     */
+    private $birthday;
 
-//    public function __construct(string $firstname, string $lastname, string $email, string $password, Date $birthday)
-//    {
-//        $this->firstname = $firstname;
-//        $this->lastname = $lastname;
-//        $this->email = $email;
-//        $this->password = $password;
-//        $this->birthday = $birthday;
-//    }
+    private $faker;
+
+
+
+    public function __construct()
+    {
+        $this->faker = Factory::create();
+    }
 
     public function getId(): ?int
     {
@@ -116,21 +120,6 @@ class User
         return $this;
     }
 
-    /**
-     * @return Carbon
-     */
-    public function getBirthday(): Carbon
-    {
-        return $this->birthday;
-    }
-
-    /**
-     * @param Carbon $birthday
-     */
-    public function setBirthday(Carbon $birthday): void
-    {
-        $this->birthday = $birthday;
-    }
     
     public function getToDoList(): ?ToDoList
     {
@@ -191,10 +180,13 @@ class User
         return false;
     }
 
-    public function isMoreThan13(Carbon $birthday) : bool
+    public function isMoreThan13(\DateTime $birthday) : bool
     {
+        $today = new \DateTime("now");
+
         if (!empty($birthday)) {
-            $age =  Carbon::parse($birthday)->age;
+            $age =  $today->diff($birthday)->y;
+
             if ($age >= 13) {
                 return true;
             }
@@ -236,19 +228,38 @@ class User
 
     public function addItemToToDoList(User $user) : bool
     {
-       $items = $user->getToDoList()->getItems();
-       $nbItems = sizeof($items);
+        $toDolist = $user->getToDoList();
+        $items = $user->getToDoList()->getItems();
+        $nbItems = sizeof($items);
 
        if ($nbItems < 10) {
 
-       }
+           $item = new Item();
 
+           $item->setName($this->faker->monthName);
+           $item->setCreatedAt(new \DateTimeImmutable());
+           $item->setContent($this->faker->colorName);
+           $item->setToDoList($toDolist);
+       }
     }
+
 
     public function getLastItemCreation(Item $item) : \DateTimeImmutable
     {
         $creationDate = $item->getCreatedAt();
 
         return $creationDate;
+    }
+
+    public function getBirthday(): ?\DateTimeInterface
+    {
+        return $this->birthday;
+    }
+
+    public function setBirthday(\DateTimeInterface $birthday): self
+    {
+        $this->birthday = $birthday;
+
+        return $this;
     }
 }

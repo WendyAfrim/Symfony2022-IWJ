@@ -116,4 +116,27 @@ class ToDoList
         return $this;
     }
 
+    public function checkUnicity(ToDoList $toDoList, Item $newItem ) : bool
+    {
+        $items = $toDoList->getItems();
+
+        foreach ($items as $item)
+        {
+            if ($item->getName() === $newItem->getName()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public function checkLastCreation() : int
+    {
+        $now = new \DateTime("now");
+
+        $itemCreationDate = $this->getItems()->last()->getCreatedAt();
+
+        return $itemCreationDate->diff($now)->i;
+    }
+
  }

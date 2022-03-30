@@ -18,6 +18,7 @@ class Item
     private $id;
 
     /**
+     *
      * @ORM\Column(type="string", length=255)
      */
     private $name;
@@ -89,4 +90,16 @@ class Item
 
         return $this;
     }
+
+    public function checkItemLength(Item $item) : bool
+    {
+        $itemLength = strlen($item->getContent());
+
+        if (!empty($itemLength) && $itemLength < 1000) {
+            return true;
+        }
+
+        return false;
+    }
+
 }
