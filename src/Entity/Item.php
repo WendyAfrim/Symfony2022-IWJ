@@ -94,4 +94,15 @@ class Item
 
         return $this;
     }
+
+    public function isTooLongContents(): bool
+    {
+        if(strlen($this->getContent()) > 1000)
+        {
+            return true;
+        }
+        return false;
+    }
+
+
 }

@@ -3,54 +3,62 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use Carbon\Carbon;
-use Doctrine\ORM\EntityManager;
-use Doctrine\Persistence\ManagerRegistry;
-use Faker\Factory;
-use phpDocumentor\Reflection\Types\Boolean;
+use App\Repository\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Validator\Constraints\Date;
+use Symfony\Component\Serializer\Exception\NotEncodableValueException;
+use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class UserController extends AbstractController
 {
-    #[Route('/user', name: 'user')]
-    public function index(): Response
+    #[Route('/', name: 'user_index', methods: ['GET'])]
+    public function index(UserRepository $userRepository): Response
     {
-        return $this->render('user/index.html.twig', [
-            'controller_name' => 'UserController',
+        /*
+        $validusers = $validUserRepository->findAll();
+
+        $validusersNormalises = $no rmalizer->normalize($validusers,
+         null, ['groups' => 'validUsers']);
+        $json = json_encode($validusersNormalises);
+
+        $json = $serializer->serialize($validusers, 'json', ['groups' => 'validUsers']);
+
+        $response = new Response($json, 200, [
+            "content-type" => "application/json"
         ]);
+
+        $response = new jsonResponse($json, 200, [], true);
+        */
+        return $this->json($userRepository->findAll(),
+            200, [], ['groups' => 'apiUser']);
     }
 
-    #[Route('/add', name: 'user_add')]
-    public function add(ManagerRegistry $registry): Response
+    #[Route('/', name: 'new_user', methods: ['POST'])]
+    public function newUser(Request $request, SerializerInterface $serializer,
+                            EntityManagerInterface $entityManager, ValidatorInterface $validator)
     {
-        $faker = Factory::create();
-
-        $em = $registry->getManager();
-
-        for ($i = 0; $i < 10; $i++) {
-
-            $user = new User();
-
-            $user->setFirstname($faker->firstName);
-            $user->setLastname($faker->lastName);
-            $user->setEmail($faker->email);
-            $user->setPassword($faker->password);
-            $user->setBirthday(Carbon::now()->subYears(15));
-            $user->setHasCreatedToDoList(false);
-
-
-            if (true === $user->isValid($user)) {
-                $em->persist($user);
+        $receivedUser = $request->getContent();
+        try {
+            $user = $serializer->deserialize($receivedUser, User::class, 'json');
+            $errors = $validator->validate($user);
+            if(count($errors) > 30)
+            {
+                return $this->json($errors, 400);
             }
+            $entityManager->persist($user);
+            $entityManager->flush();
+            return $this->json($user, 201, [], ['groups' => 'apiUser']);
+        }catch(NotEncodableValueException $exception)
+        {
+            return $this->json([
+                'status' => 400,
+                'message' => $exception->getMessage()
+            ], 400);
         }
-        $em->flush();
-
-        return $this->render('user/index.html.twig', [
-            'controller_name' => 'UserController',
-        ]);
     }
 
 }

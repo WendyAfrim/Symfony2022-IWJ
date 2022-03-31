@@ -7,48 +7,45 @@ use App\Entity\User;
 use App\Repository\ToDoListRepository;
 use App\Repository\UserRepository;
 use Carbon\Carbon;
+use Doctrine\ORM\EntityManagerInterface;
 use Faker\Factory;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class ToDoListController extends AbstractController
 {
-    #[Route('/to/do/list', name: 'to_do_list')]
-    public function index(ToDoListRepository $toDoListRepository): Response
+    #[Route('/add_to_do_list/{id}', name: 'add_to_do_list_to_user', methods: ['POST'])]
+    public function newToDoList(User $user, Request $request, SerializerInterface $serializer,
+                                EntityManagerInterface $entityManager)
     {
-        return $this->render('to_do_list/index.html.twig', [
-            'to_do_lists' => $toDoListRepository->findAll(),
-        ]);
-    }
+        if ($user->isValidUser())
+        {
+            if(is_null($user->getToDoList()))
+            {
 
-    #[Route('/toDoList/add', name: 'add_to_do_list')]
-    public function add(ManagerRegistry $registry, UserRepository $userRepository): Response
-    {
-        $faker = Factory::create();
-
-        $em = $registry->getManager();
-
-        for ($i = 0; $i < 10; $i++) {
-
-            $users = $userRepository->findAll();
-
-            foreach ($users as $user) {
                 $toDoList = new ToDoList();
-
-                $toDoList->setName($faker->colorName);
-                $toDoList->setValidUser($user);
-                $toDoList->setCreatedAt(new \DateTimeImmutable());
-
-                $em->persist($toDoList);
+                $toDoList->setCreatedAt(new \DateTime());
+                $toDoList->setName($user->getFirstname() . " to do list");
+                $user->setToDoList($toDoList);
+                $user->setHasCreatedToDoList(true);
+                $entityManager->flush();
+                return $this->json($toDoList, 201, [], ['groups' => 'apiUser']);
             }
+            return $this->json([
+                'status' => 409,
+                'message' => 'User already has to do list'
+            ], 400);
         }
-
-        $em->flush();
-
-        return $this->render('to_do_list/index.html.twig', [
-            'controller_name' => 'ToDoListController',
-        ]);
+        else
+        {
+            return $this->json([
+                'status' => 400,
+                'message' => 'Not Valid User'
+            ], 400);
+        }
     }
 }

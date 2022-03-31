@@ -256,4 +256,49 @@ class User
 
         return $creationDate;
     }
+
+    private function isValidName(string $firstName, string $lastName): bool
+    {
+        if(!empty($firstName) && !empty($lastName))
+        {
+            return true;
+        }
+        return false;
+    }
+    private function isValidEmail(string $email): bool
+    {
+        if(!filter_var($email, FILTER_VALIDATE_EMAIL))
+        {
+            return false;
+        }
+        return true;
+    }
+
+    private function isValidPassword(string $password): bool
+    {
+        if(!in_array(strlen($password), range(8, 40)))
+        {
+            return false;
+        }
+        return true;
+    }
+
+    private function isValidAge(\DateTimeInterface $birthday): bool
+    {
+        $today = new \DateTime('now');
+        if($today->diff($birthday , true)->y > 12)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public function isValidUser(): bool
+    {
+        return $this->isValidAge($this->getBirthday())
+            && $this->isValidEmail($this->getEmail())
+            && $this->isValidName($this->getFirstName(), $this->getLastName())
+            && $this->isValidPassword($this->getPassword());
+
+    }
 }

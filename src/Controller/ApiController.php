@@ -16,10 +16,10 @@ use Symfony\Component\Serializer\Exception\NotEncodableValueException;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-#[Route('/api')]
+#[Route('/myOldapi')]
 class ApiController extends AbstractController
 {
-    #[Route('/', name: 'user_index', methods: ['GET'])]
+    #[Route('/', name: 'old_user_index', methods: ['GET'])]
     public function index(UserRepository $userRepository): Response
     {
         /*
@@ -41,7 +41,7 @@ class ApiController extends AbstractController
             200, [], ['groups' => 'apiUser']);
     }
 
-    #[Route('/', name: 'new_user', methods: ['POST'])]
+    #[Route('/', name: 'old_new_user', methods: ['POST'])]
     public function newUser(Request $request, SerializerInterface $serializer,
                             EntityManagerInterface $entityManager, ValidatorInterface $validator)
     {
@@ -65,7 +65,7 @@ class ApiController extends AbstractController
         }
     }
 
-    #[Route('/add_to_do_list/{id}', name: 'add_to_do_list_to_user', methods: ['POST'])]
+    #[Route('/add_to_do_list/{id}', name: 'old_add_to_do_list_to_user', methods: ['POST'])]
     public function newToDoList(User $user, Request $request, SerializerInterface $serializer,
                                 EntityManagerInterface $entityManager)
     {
@@ -95,7 +95,7 @@ class ApiController extends AbstractController
             ], 400);
         }
     }
-    #[Route('/add_item/{id}', name: 'add_new_item', methods: ['POST'])]
+    #[Route('/add_item/{id}', name: 'old_add_new_item', methods: ['POST'])]
     public function newItem(ToDoList $toDoList, Request $request,
                             SerializerInterface $serializer,
                             EntityManagerInterface $entityManager,

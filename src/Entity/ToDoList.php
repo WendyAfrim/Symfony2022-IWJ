@@ -118,4 +118,33 @@ class ToDoList
         return $this;
     }
 
+    public function isFull(): bool
+    {
+        if(count($this->getItems()) > 9)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public function iseighth(): bool
+    {
+        if(count($this->getItems()) > 7)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public function lastAddItem(): int
+    {
+        $lastItem = $this->getItems()->last();
+        $now = new \DateTime('now');
+        if($lastItem === false)
+        {
+            return 31;
+        }
+        //dd($now, $lastItem->getCreationDate(), date_diff($now, $lastItem->getCreationDate() , true)->i );
+        return ($now->diff($lastItem->getCreatedAt())->i);
+    }
  }
