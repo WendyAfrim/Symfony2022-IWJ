@@ -33,7 +33,7 @@ class UserController extends AbstractController
             200, [], ['groups' => 'apiUser']);
     }
 
-    #[Route('/', name: 'new_user', methods: ['POST'])]
+    #[Route('/', name: 'add_new_user', methods: ['POST'])]
     public function newUser(Request $request, SerializerInterface $serializer,
                             EntityManagerInterface $entityManager, ValidatorInterface $validator)
     {

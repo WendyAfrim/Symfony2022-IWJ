@@ -12,7 +12,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class ToDoListController extends AbstractController
 {
-    #[Route('/add_to_do_list/{id}', name: 'add_to_do_list_to_user', methods: ['POST'])]
+    #[Route('/add_to_do_list/{id}', name: 'add_to_do_list', methods: ['POST'])]
     public function newToDoList(User $user, Request $request, SerializerInterface $serializer,
                                 EntityManagerInterface $entityManager)
     {
