@@ -3,14 +3,14 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
-use Carbon\Carbon;
 use Doctrine\ORM\Mapping as ORM;
-use phpDocumentor\Reflection\Types\Boolean;
-use Symfony\Component\Validator\Constraints\Date;
+use Symfony\Component\Serializer\Annotation\Groups;
+
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
  * @ORM\Table(name="`user`")
+ * @Groups("apiUser")
  */
 class User
 {
@@ -18,38 +18,50 @@ class User
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups("apiUser")
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups("apiUser")
      */
     private $firstname;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups("apiUser")
      */
     private $lastname;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups("apiUser")
      */
     private $email;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups("apiUser")
      */
     private $password;
 
-    private Carbon $birthday;
+
+    /**
+     * @ORM\Column(type="datetime")
+     * @Groups("apiUser")
+     */
+    private $birthday;
 
     /**
      * @ORM\OneToOne(targetEntity=ToDoList::class, mappedBy="validUser", cascade={"persist", "remove"})
+     * @Groups("apiUser")
      */
     private $toDoList;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups("apiUser")
      */
     private $hasCreatedToDoList;
 
@@ -116,20 +128,15 @@ class User
         return $this;
     }
 
-    /**
-     * @return Carbon
-     */
-    public function getBirthday(): Carbon
+    public function getBirthday(): ?\DateTimeInterface
     {
         return $this->birthday;
     }
 
-    /**
-     * @param Carbon $birthday
-     */
-    public function setBirthday(Carbon $birthday): void
+    public function setBirthday(\DateTimeInterface $birthday): self
     {
         $this->birthday = $birthday;
+        return $this;
     }
     
     public function getToDoList(): ?ToDoList
@@ -191,13 +198,12 @@ class User
         return false;
     }
 
-    public function isMoreThan13(Carbon $birthday) : bool
+    public function isMoreThan13() : bool
     {
-        if (!empty($birthday)) {
-            $age =  Carbon::parse($birthday)->age;
-            if ($age >= 13) {
+        $today = new \DateTime();
+        if ($this->getBirthday()->diff($today)->y > 12)
+        {
                 return true;
-            }
         }
         return false;
     }
@@ -208,7 +214,7 @@ class User
             $this->isNotEmpty($user->getFirstname(), $user->getLastname()) &&
             $this->validEmail($user->getEmail()) &&
             $this->validPassword($user->getPassword()) &&
-            $this->isMoreThan13($user->getBirthday())
+            $this->isMoreThan13()
         ) {
             return true;
         }
@@ -222,8 +228,7 @@ class User
             // Instanciation de l'objet ToDoList
             $toDoList = new ToDoList();
             $toDoList->setName('Test to do list');
-            $toDoList->setCreatedAt(new \DateTimeImmutable());
-
+            $toDoList->setCreatedAt(new \DateTime);
             $user->setToDoList($toDoList);
             $user->setHasCreatedToDoList(true);
 

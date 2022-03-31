@@ -3,10 +3,10 @@
 namespace App\Entity;
 
 use App\Repository\ToDoListRepository;
-use Carbon\Carbon;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=ToDoListRepository::class)
@@ -17,6 +17,7 @@ class ToDoList
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups("apiUser")
      */
     private $id;
 
@@ -27,6 +28,7 @@ class ToDoList
 
     /**
      * @ORM\OneToMany(targetEntity=Item::class, mappedBy="toDoList")
+     * @Groups("apiUser")
      */
     private $items;
 
@@ -36,7 +38,7 @@ class ToDoList
     private $name;
 
     /**
-     * @ORM\Column(type="datetime_immutable")
+     * @ORM\Column(type="datetime")
      */
     private $created_at;
 
@@ -104,12 +106,12 @@ class ToDoList
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): ?\DateTime
     {
         return $this->created_at;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $created_at): self
+    public function setCreatedAt(\DateTime $created_at): self
     {
         $this->created_at = $created_at;
 

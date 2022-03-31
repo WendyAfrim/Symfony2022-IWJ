@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\ItemRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=ItemRepository::class)
@@ -14,21 +15,25 @@ class Item
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups("apiUser")
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups("apiUser")
      */
     private $name;
 
     /**
-     * @ORM\Column(type="datetime_immutable")
+     * @ORM\Column(type="datetime")
+     * @Groups("apiUser")
      */
     private $created_at;
 
     /**
      * @ORM\Column(type="text", nullable=true)
+     * @Groups("apiUser")
      */
     private $content;
 
@@ -54,12 +59,12 @@ class Item
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): ?\DateTime
     {
         return $this->created_at;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $created_at): self
+    public function setCreatedAt(\DateTime $created_at): self
     {
         $this->created_at = $created_at;
 

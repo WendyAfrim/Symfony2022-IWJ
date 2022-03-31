@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\ToDoList;
 use App\Entity\User;
+use App\Repository\ToDoListRepository;
 use App\Repository\UserRepository;
 use Carbon\Carbon;
 use Faker\Factory;
@@ -15,10 +16,10 @@ use Symfony\Component\Routing\Annotation\Route;
 class ToDoListController extends AbstractController
 {
     #[Route('/to/do/list', name: 'to_do_list')]
-    public function index(): Response
+    public function index(ToDoListRepository $toDoListRepository): Response
     {
         return $this->render('to_do_list/index.html.twig', [
-            'controller_name' => 'ToDoListController',
+            'to_do_lists' => $toDoListRepository->findAll(),
         ]);
     }
 
