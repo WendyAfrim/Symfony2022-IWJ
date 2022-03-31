@@ -69,11 +69,14 @@ class UserTest extends TestCase
     public function testIsValid()
     {
         $faker = Factory::create();
-        $this->user->setBirthday($faker->dateTimeBetween('-20 years', '-14 years'));
 
+        $this->user->setBirthday($faker->dateTimeBetween('-20 years', '-14 years'));
         $result = $this->user->isValid();
         $this->assertTrue($result);
-        dd($this->user->getBirthday());
+
+        $this->user->setBirthday($faker->dateTimeBetween('-12 years', '-0 years'));
+        $result = $this->user->isValid();
+        $this->assertFalse($result);
     }
 
     public function testIsValidUserHasNotCreateToDoList()
