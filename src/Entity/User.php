@@ -66,14 +66,14 @@ class User
     private $hasCreatedToDoList;
 
 
-//    public function __construct(string $firstname, string $lastname, string $email, string $password, Date $birthday)
-//    {
-//        $this->firstname = $firstname;
-//        $this->lastname = $lastname;
-//        $this->email = $email;
-//        $this->password = $password;
-//        $this->birthday = $birthday;
-//    }
+    public function __construct(string $firstname, string $lastname, string $email, string $password, \DateTime $birthday)
+    {
+        $this->firstname = $firstname;
+        $this->lastname = $lastname;
+        $this->email = $email;
+        $this->password = $password;
+        $this->birthday = $birthday;
+    }
 
     public function getId(): ?int
     {
@@ -173,48 +173,48 @@ class User
         return $this;
     }
 
-    public function validEmail(string $email) : bool
+    public function validEmail() : bool
     {
-        if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        if (!empty($this->getEmail()) && filter_var($this->getEmail(), FILTER_VALIDATE_EMAIL)) {
             return true;
         }
         return false;
     }
 
-    public function validPassword(string $password) : bool
+    public function validPassword() : bool
     {
-        if (!empty($password) && strlen($password) >= 8 && strlen($password) <= 40) {
+        if (!empty($this->getPassword()) && strlen($this->getPassword()) >= 8 && strlen($this->getPassword()) <= 40) {
             return true;
         }
         return false;
     }
 
-    public function isNotEmpty(string $firstname, string $lastname) : bool
+    public function isNotEmpty() : bool
     {
-        if (!empty($firstname) && !empty($lastname)) {
+        if (!empty($this->getFirstname()) && !empty($this->getLastname())) {
             return true;
         }
 
         return false;
     }
 
-    public function isMoreThan13() : bool
+    public function is13atLeast() : bool
     {
         $today = new \DateTime();
-        if ($this->getBirthday()->diff($today)->y > 12)
+         if ($this->getBirthday()->diff($today)->y > 12)
         {
                 return true;
         }
         return false;
     }
 
-    public function isValid(User $user) : bool
+    public function isValid() : bool
     {
         if (
-            $this->isNotEmpty($user->getFirstname(), $user->getLastname()) &&
-            $this->validEmail($user->getEmail()) &&
-            $this->validPassword($user->getPassword()) &&
-            $this->isMoreThan13()
+            $this->isNotEmpty() &&
+            $this->validEmail() &&
+            $this->validPassword() &&
+            $this->is13atLeast()
         ) {
             return true;
         }
@@ -222,15 +222,15 @@ class User
         return false;
     }
 
-    public function createToDoList(User $user): bool
+    public function createToDoList(): bool
     {
-        if ($user->isValid($user) && null === $user->hasCreatedToDoList) {
+        if ($this->isValid() && null === $this->hasCreatedToDoList) {
             // Instanciation de l'objet ToDoList
             $toDoList = new ToDoList();
             $toDoList->setName('Test to do list');
             $toDoList->setCreatedAt(new \DateTime);
-            $user->setToDoList($toDoList);
-            $user->setHasCreatedToDoList(true);
+            $this->setToDoList($toDoList);
+            $this->setHasCreatedToDoList(true);
 
             return true;
         } else {
@@ -239,54 +239,45 @@ class User
 
     }
 
-    public function addItemToToDoList(User $user) : bool
-    {
-       $items = $user->getToDoList()->getItems();
-       $nbItems = sizeof($items);
 
-       if ($nbItems < 10) {
 
-       }
-
-    }
-
-    public function getLastItemCreation(Item $item) : \DateTimeImmutable
+    public function getLastItemCreation(Item $item) : \DateTime
     {
         $creationDate = $item->getCreatedAt();
 
         return $creationDate;
     }
 
-    private function isValidName(string $firstName, string $lastName): bool
+    private function isValidName(): bool
     {
-        if(!empty($firstName) && !empty($lastName))
+        if(!empty($this->getFirstname()) && !empty($this->getLastname()))
         {
             return true;
         }
         return false;
     }
-    private function isValidEmail(string $email): bool
+    private function isValidEmail(): bool
     {
-        if(!filter_var($email, FILTER_VALIDATE_EMAIL))
+        if(!filter_var($this->getEmail(), FILTER_VALIDATE_EMAIL))
         {
             return false;
         }
         return true;
     }
 
-    private function isValidPassword(string $password): bool
+    private function isValidPassword(): bool
     {
-        if(!in_array(strlen($password), range(8, 40)))
+        if(!in_array(strlen($this->getPassword()), range(8, 40)))
         {
             return false;
         }
         return true;
     }
 
-    private function isValidAge(\DateTimeInterface $birthday): bool
+    private function isValidAge(): bool
     {
         $today = new \DateTime('now');
-        if($today->diff($birthday , true)->y > 12)
+        if($today->diff($this->getBirthday() , true)->y > 12)
         {
             return true;
         }
@@ -295,10 +286,10 @@ class User
 
     public function isValidUser(): bool
     {
-        return $this->isValidAge($this->getBirthday())
-            && $this->isValidEmail($this->getEmail())
-            && $this->isValidName($this->getFirstName(), $this->getLastName())
-            && $this->isValidPassword($this->getPassword());
+        return $this->isValidAge()
+            && $this->isValidEmail()
+            && $this->isValidName()
+            && $this->isValidPassword();
 
     }
 }

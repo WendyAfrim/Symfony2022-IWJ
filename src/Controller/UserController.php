@@ -20,17 +20,13 @@ class UserController extends AbstractController
     {
         /*
         $validusers = $validUserRepository->findAll();
-
         $validusersNormalises = $no rmalizer->normalize($validusers,
          null, ['groups' => 'validUsers']);
         $json = json_encode($validusersNormalises);
-
         $json = $serializer->serialize($validusers, 'json', ['groups' => 'validUsers']);
-
         $response = new Response($json, 200, [
             "content-type" => "application/json"
         ]);
-
         $response = new jsonResponse($json, 200, [], true);
         */
         return $this->json($userRepository->findAll(),
