@@ -130,10 +130,9 @@ class ToDoList
         return true;
     }
 
-    public function checkLastCreation() : int
+    public function checkLastItemCreation() : int
     {
         $now = new \DateTime("now");
-
         $itemCreationDate = $this->getItems()->last()->getCreatedAt();
 
         return $itemCreationDate->diff($now)->i;

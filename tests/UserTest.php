@@ -1,21 +1,28 @@
 <?php
 
 
+use App\Entity\Item;
 use App\Entity\User;
 use App\Entity\ToDoList;
 use PHPUnit\Framework\TestCase;
 use Faker\Factory;
-use Carbon\Carbon;
 
 class UserTest extends TestCase
 {
+    private User $user;
+
+    protected function setUp(): void
+    {
+        $today = new \DateTime();
+        $interval15Y = new \DateInterval('P15Y');
+        $this->user = new User('testf', 'testl','test@test.fr', 'testPassword',  $today->sub($interval15Y));
+        parent::setUp();
+    }
 
     public function testIsNotEmpty()
     {
         $faker = Factory::create();
-
-        $user = new User();
-        $result = $user->isNotEmpty($faker->firstName,$faker->lastName);
+        $result = $this->user->isNotEmpty($faker->firstName,$faker->lastName);
         $this->assertTrue($result);
     }
 
@@ -23,82 +30,86 @@ class UserTest extends TestCase
     {
         $faker = Factory::create();
 
-        $user = new User();
-        $result = $user->validEmail($faker->email);
+        $result = $this->user->validEmail($faker->email);
         $this->assertTrue($result);
     }
 
     public function testIsMoreThan13()
     {
         $faker = Factory::create();
-        $randomInt = rand(0, 100);
+        $result = $this->user->isMoreThan13($faker->dateTimeBetween('-20 years', '-13 years'));
+        $this->assertTrue($result);
+        $result = $this->user->isMoreThan13($faker->dateTimeBetween('-12 years', '-0 years'));
+        $this->assertFalse($result);
 
-        $user = new User();
-        $result = $user->isMoreThan13(Carbon::now()->subYears($randomInt));
-
-        if(true === $result) {
-            $this->assertTrue($result);
-        } else {
-            $this->assertFalse($result);
-        }
     }
 
     public function testIsValidPassword()
     {
-         $faker = Factory::create();
-         $user = new User();
-
-         $password = $faker->password;
-
-         $result = $user->validPassword($password);
+         $result = $this->user->validPassword('Yhskqufnns');
          $this->assertTrue($result);
     }
 
     public function testIsValid()
     {
         $faker = Factory::create();
-        $user = new User();
-        $randomInt = rand(0, 100);
-
-        $user->setFirstname($faker->firstName);
-        $user->setLastname($faker->lastName);
-        $user->setEmail($faker->email);
-        $user->setPassword($faker->password);
-        $user->setBirthday(Carbon::now()->subYears($randomInt));
-
-        $result = $user->isValid($user);
-
+        $this->user->setBirthday($faker->dateTimeBetween('-20 years', '-13 years'));
+        $result = $this->user->isValid($this->user);
         $this->assertTrue($result);
+
+        $this->user->setBirthday($faker->dateTimeBetween('-12 years', '-0 years'));
+        $result = $this->user->isValid($this->user);
+        $this->assertFalse($result);
     }
 
     public function testIsValidUserHasNotCreateToDoList()
     {
-        $faker = Factory::create();
-        $user = new User();
-
-        $user->setFirstname('Jane');
-        $user->setLastname('Doe');
-        $user->setEmail('jane@test.com');
-        $user->setPassword('Tkwjf3251cs');
-        $user->setBirthday(Carbon::now()->subYears(15));
-
-        $result = $user->createToDoList($user);
+        $result = $this->user->createToDoList($this->user);
         $this->assertTrue($result);
     }
 
     public function testIsValidUserHasAlreadyCreateToDoList()
     {
-        $faker = Factory::create();
-        $user = new User();
+        $this->user->setHasCreatedToDoList(true);
 
-        $user->setFirstname('Jane');
-        $user->setLastname('Doe');
-        $user->setEmail('jane@test.com');
-        $user->setPassword('Tkwjf3251cs');
-        $user->setBirthday(Carbon::now()->subYears(15));
-        $user->setHasCreatedToDoList(true);
-
-        $result = $user->createToDoList($user);
+        $result = $this->user->createToDoList($this->user);
         $this->assertFalse($result);
+    }
+
+    public function testAddItemToToDoList()
+    {
+        $toDoList = new ToDoList();
+        $toDoList->setCreatedAt(new \DateTimeImmutable());
+        $toDoList->setName("To do list");
+        $this->user->setToDoList($toDoList);
+        $toDoList->setValidUser($this->user);
+        $this->user->setHasCreatedToDoList(true);
+
+        $item = new Item();
+        $item->setName("test1Item");
+        $item->setContent("testContent");
+        $item->setCreatedAt(new \DateTimeImmutable());
+
+        $result = $this->user->addItemToToDoList($item);
+        $this->assertTrue($result);
+
+
+
+        for($i = 0; $i < 9; $i++)
+        {
+            $item = new Item();
+            $item->setName("test". $i. "Item");
+            $item->setContent("testContent");
+            $item->setCreatedAt(new \DateTimeImmutable());
+            $this->user->getToDoList()->addItem($item);
+        }
+
+        $item = new Item();
+        $item->setName("test1Item");
+        $item->setContent("testContent");
+        $item->setCreatedAt(new \DateTimeImmutable());
+        $result = $this->user->addItemToToDoList($item);
+        $this->assertFalse($result);
+
     }
 }
