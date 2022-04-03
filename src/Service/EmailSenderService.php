@@ -6,7 +6,7 @@ use Symfony\Component\Config\Definition\Exception\Exception;
 
 class EmailSenderService
 {
-    public static function send(string $email)
+    public function send(string $email)
     {
         throw new Exception("Not yet implemented");
     }
