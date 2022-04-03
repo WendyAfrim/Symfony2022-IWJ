@@ -135,7 +135,6 @@ class ToDoList
         $now = new \DateTime("now");
         $itemCreationDate = $this->getItems()->last()->getCreatedAt();
 
-
         return $itemCreationDate->diff($now)->i;
     }
 

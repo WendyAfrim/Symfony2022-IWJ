@@ -11,6 +11,7 @@ class ToDOListTest extends \Monolog\Test\TestCase
 {
 
     private User $user;
+
     protected function setUp(): void
     {
         $this->toDoList = new ToDoList();

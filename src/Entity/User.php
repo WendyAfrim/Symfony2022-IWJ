@@ -64,8 +64,14 @@ class User
 
 
 
-    public function __construct()
+    public function __construct(string $firstname, string $lastname, string $email, string $password, $birthday)
     {
+        $this->firstname = $firstname;
+        $this->lastname = $lastname;
+        $this->email = $email;
+        $this->password = $password;
+        $this->birthday = $birthday;
+
         $this->faker = Factory::create();
     }
 
@@ -231,21 +237,27 @@ class User
 
     public function addItemToToDoList(Item $item) : bool
     {
-        if(!empty($this->getToDoList()))
+        if($this->getToDoList() !== null)
         {
             $nbItems = sizeof($this->getToDoList()->getItems());
-            if ($nbItems < 10 &&
+
+            if ($nbItems === 0 && $item->isLessThan1000($item)) {
+                $this->getToDoList()->addItem($item);
+                return true;
+
+            } elseif(
+                $nbItems < 10 &&
                 $this->getToDoList()->checkUnicity($this->getToDoList(), $item) &&
                 ($this->getToDoList()->checkLastItemCreation() > 30) &&
                 ($item->isLessThan1000($item))
             )
             {
-                    if($nbItems === 8)
-                    {
-                        EmailSenderService::send($this->getEmail());
-                    }
-                    $this->getToDoList()->addItem($item);
-                    return true;
+                if($nbItems === 8)
+                {
+                    EmailSenderService::send($this->getEmail());
+                }
+                $this->getToDoList()->addItem($item);
+                return true;
             }
         }
         return false;

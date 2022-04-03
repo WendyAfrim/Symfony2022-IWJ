@@ -30,8 +30,7 @@ class UserTest extends TestCase
     {
         $faker = Factory::create();
 
-        $user = new User();
-        $result = $user->validEmail($faker->email);
+        $result = $this->user->validEmail($faker->email);
         $this->assertTrue($result);
     }
 
@@ -47,9 +46,7 @@ class UserTest extends TestCase
 
     public function testIsValidPassword()
     {
-         $faker = Factory::create();
-         $password = $faker->password;
-         $result = $this->user->validPassword($password);
+         $result = $this->user->validPassword('Yhskqufnns');
          $this->assertTrue($result);
     }
 
@@ -60,7 +57,7 @@ class UserTest extends TestCase
         $result = $this->user->isValid($this->user);
         $this->assertTrue($result);
 
-        $this->user->setBirthday($faker->dateTimeBetween('-20 years', '-13 years'));
+        $this->user->setBirthday($faker->dateTimeBetween('-12 years', '-0 years'));
         $result = $this->user->isValid($this->user);
         $this->assertFalse($result);
     }
@@ -107,14 +104,12 @@ class UserTest extends TestCase
             $this->user->getToDoList()->addItem($item);
         }
 
-        $result = $this->user->addItemToToDoList($item);
-        $this->assertTrue($result);
         $item = new Item();
         $item->setName("test1Item");
         $item->setContent("testContent");
         $item->setCreatedAt(new \DateTimeImmutable());
+        $result = $this->user->addItemToToDoList($item);
         $this->assertFalse($result);
-
 
     }
 }
