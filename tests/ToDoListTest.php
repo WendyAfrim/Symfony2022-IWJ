@@ -4,7 +4,6 @@ namespace App\Tests;
 
 use App\Entity\Item;
 use App\Entity\ToDoList;
-use App\Entity\User;
 use PHPUnit\Framework\TestCase;
 
 class ToDoListTest extends TestCase
@@ -20,10 +19,6 @@ class ToDoListTest extends TestCase
         $item->setContent("testContent");
         $item->setCreatedAt();
 
-        $today = new \DateTime();
-        $interval15Y = new \DateInterval('P15Y');
-        $user = new User('testf', 'testl','test@test.fr', 'testPassword',  $today->sub($interval15Y));
-        $user->setToDoList($this->toDoList);
         $this->toDoList->addItem($item);
 
         parent::setUp();
