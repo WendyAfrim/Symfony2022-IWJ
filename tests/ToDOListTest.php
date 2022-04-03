@@ -18,9 +18,11 @@ class ToDOListTest extends \Monolog\Test\TestCase
         $this->toDoList->setCreatedAt(new \DateTimeImmutable());
         $this->toDoList->setName("To do list");
 
+        $emailSenderService = new EmailSenderService();
+
         $today = new \DateTime();
         $interval15Y = new \DateInterval('P15Y');
-        $this->user = new User('testf', 'testl','test@test.fr', 'testPassword',  $today->sub($interval15Y));
+        $this->user = new User('testf', 'testl','test@test.fr', 'testPassword',  $today->sub($interval15Y), $emailSenderService);
         $this->user->setToDoList($this->toDoList);
         $this->toDoList->setValidUser($this->user);
         $this->user->setHasCreatedToDoList(true);
@@ -33,10 +35,28 @@ class ToDOListTest extends \Monolog\Test\TestCase
 
         $this->toDoList->addItem($item);
 
-        $this->externalApis = $this->getMockBuilder(EmailSenderService::class)
-            ->onlyMethods(['send'])
-            ->getMock();
-
         parent::setUp();
+    }
+
+    public function testCheckUnicity()
+    {
+        $item = new Item();
+        $item->setName("testItem");
+        $item->setContent("testContent");
+        $item->setCreatedAt(new \DateTimeImmutable());
+
+        $result = $this->user->getToDoList()->checkUnicity($this->user->getToDoList(), $item);
+
+        $this->assertFalse($result);
+
+    }
+
+
+    public function checkLastItemCreation()
+    {
+        $result = $this->checkLastItemCreation();
+
+        $this->assertEquals(0, $result);
+
     }
 }

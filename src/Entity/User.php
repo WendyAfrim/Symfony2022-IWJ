@@ -60,17 +60,17 @@ class User
      */
     private $birthday;
 
-    private $faker;
+    private EmailSenderService $emailSender;
 
 
-
-    public function __construct(string $firstname, string $lastname, string $email, string $password, $birthday)
+    public function __construct(string $firstname, string $lastname, string $email, string $password, $birthday, $emailSender)
     {
         $this->firstname = $firstname;
         $this->lastname = $lastname;
         $this->email = $email;
         $this->password = $password;
         $this->birthday = $birthday;
+        $this->emailSender = $emailSender;
 
         $this->faker = Factory::create();
     }
@@ -252,13 +252,21 @@ class User
                 ($item->isLessThan1000($item))
             )
             {
-                if($nbItems === 8)
-                {
-                    EmailSenderService::send($this->getEmail());
-                }
                 $this->getToDoList()->addItem($item);
+                $this->has8Items();
+
                 return true;
             }
+        }
+        return false;
+    }
+
+    public function has8Items() : bool
+    {
+        if($this->getToDoList()->getItems()->count() === 8) {
+            $this->emailSender->send($this->getEmail());
+
+            return true;
         }
         return false;
     }

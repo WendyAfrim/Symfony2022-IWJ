@@ -5,17 +5,28 @@ use App\Entity\Item;
 use App\Entity\User;
 use App\Entity\ToDoList;
 use PHPUnit\Framework\TestCase;
+use App\Service\EmailSenderService;
 use Faker\Factory;
 
 class UserTest extends TestCase
 {
     private User $user;
 
+   /** @var EmailSenderService $emailSenderService */
+    private $emailSenderService;
+
     protected function setUp(): void
     {
         $today = new \DateTime();
         $interval15Y = new \DateInterval('P15Y');
-        $this->user = new User('testf', 'testl','test@test.fr', 'testPassword',  $today->sub($interval15Y));
+
+        $this->emailSenderService = $this->getMockBuilder(EmailSenderService::class)
+            ->onlyMethods(['send'])
+            ->getMock();
+
+        $this->user = new User('testf', 'testl','test@test.fr', 'testPassword',  $today->sub($interval15Y), $this->emailSenderService);
+
+
         parent::setUp();
     }
 
@@ -93,8 +104,6 @@ class UserTest extends TestCase
         $result = $this->user->addItemToToDoList($item);
         $this->assertTrue($result);
 
-
-
         for($i = 0; $i < 9; $i++)
         {
             $item = new Item();
@@ -111,5 +120,30 @@ class UserTest extends TestCase
         $result = $this->user->addItemToToDoList($item);
         $this->assertFalse($result);
 
+    }
+
+    public function testHas8Items()
+    {
+
+        $toDoList = new ToDoList();
+        $toDoList->setCreatedAt(new \DateTimeImmutable());
+        $toDoList->setName("To do list");
+        $this->user->setToDoList($toDoList);
+
+        for( $i=0; $i < 8; $i++) {
+
+            $item = new Item();
+
+            $item->setName('Item1');
+            $item->setContent('testContent');
+            $item->setCreatedAt(new \DateTimeImmutable());
+            $result = $this->user->getToDoList()->addItem($item);
+        }
+
+        $this->emailSenderService->expects($this->once())
+                    ->method('send')
+                    ->willReturn(true);
+
+        $this->assertTrue($this->user->has8items());
     }
 }
