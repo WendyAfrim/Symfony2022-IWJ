@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Controller\EmailSenderService;
 use App\Repository\ToDoListRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -41,6 +42,8 @@ class ToDoList
      * @ORM\Column(type="datetime")
      */
     private $created_at;
+
+    private EmailSenderService $emailSenderService;
 
     public function __construct()
     {
@@ -131,6 +134,11 @@ class ToDoList
     {
         if(count($this->getItems()) > 7)
         {
+            if(count($this->getItems()) === 8)
+            {
+                $emailSenderService= new EmailSenderService();
+                $emailSenderService->emailSender($this->getValidUser()->getEmail());
+            }
             return true;
         }
         return false;
