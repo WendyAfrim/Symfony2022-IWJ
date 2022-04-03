@@ -91,7 +91,7 @@ class Item
         return $this;
     }
 
-    public function checkItemLength(Item $item) : bool
+    public function isLessThan1000(Item $item) : bool
     {
         $itemLength = strlen($item->getContent());
 

@@ -3,11 +3,13 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use App\Service\EmailSenderService;
 use Carbon\Carbon;
 use Doctrine\ORM\Mapping as ORM;
 use Faker\Factory;
 use phpDocumentor\Reflection\Types\Boolean;
 use Symfony\Component\Validator\Constraints\Date;
+
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -153,6 +155,7 @@ class User
         $this->hasCreatedToDoList = $hasCreatedToDoList;
 
         return $this;
+
     }
 
     public function validEmail(string $email) : bool
@@ -226,29 +229,26 @@ class User
 
     }
 
-    public function addItemToToDoList(User $user) : bool
+    public function addItemToToDoList(Item $item) : bool
     {
-        $toDolist = $user->getToDoList();
-        $items = $user->getToDoList()->getItems();
-        $nbItems = sizeof($items);
-
-       if ($nbItems < 10) {
-
-           $item = new Item();
-
-           $item->setName($this->faker->monthName);
-           $item->setCreatedAt(new \DateTimeImmutable());
-           $item->setContent($this->faker->colorName);
-           $item->setToDoList($toDolist);
-       }
-    }
-
-
-    public function getLastItemCreation(Item $item) : \DateTimeImmutable
-    {
-        $creationDate = $item->getCreatedAt();
-
-        return $creationDate;
+        if(!empty($this->getToDoList()))
+        {
+            $nbItems = sizeof($this->getToDoList()->getItems());
+            if ($nbItems < 10 &&
+                $this->getToDoList()->checkUnicity($this->getToDoList(), $item) &&
+                ($this->getToDoList()->checkLastItemCreation() > 30) &&
+                ($item->isLessThan1000($item))
+            )
+            {
+                    if($nbItems === 8)
+                    {
+                        EmailSenderService::send($this->getEmail());
+                    }
+                    $this->getToDoList()->addItem($item);
+                    return true;
+            }
+        }
+        return false;
     }
 
     public function getBirthday(): ?\DateTimeInterface
@@ -262,4 +262,5 @@ class User
 
         return $this;
     }
+
 }
