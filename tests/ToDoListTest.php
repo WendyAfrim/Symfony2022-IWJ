@@ -23,7 +23,14 @@ class ToDoListTest extends TestCase
         $today = new \DateTime();
         $interval15Y = new \DateInterval('P15Y');
         $this->user = new User('testf', 'testl','test@test.fr', 'testPassword',  $today->sub($interval15Y));
+
+        $this->emailSenderService = $this->getMockBuilder(EmailSenderService::class)
+            ->onlyMethods(['emailSender'])
+            ->getMock();
+
+
         $this->user->setToDoList($this->toDoList);
+        $this->user->getToDoList()->setEmailSenderService($this->emailSenderService);
 
         $item = new Item();
         $item->setName("testItem");
@@ -32,9 +39,7 @@ class ToDoListTest extends TestCase
 
         $this->toDoList->addItem($item);
 
-        $this->externalApis = $this->getMockBuilder(EmailSenderService::class)
-            ->onlyMethods(['emailSender'])
-            ->getMock();
+
 
         parent::setUp();
     }
@@ -59,7 +64,7 @@ class ToDoListTest extends TestCase
         $this->assertTrue($result);
     }
 
-    public function testiseighth()
+    public function testIseighth()
     {
         for ($i=0; $i<9; $i++)
         {
@@ -68,20 +73,35 @@ class ToDoListTest extends TestCase
             $item->setContent("testContent");
             $item->setCreatedAt();
             $this->toDoList->addItem($item);
-            $this->externalApis->expects($this->any())
-                ->method('emailSender')
-                ->willReturn(true);
-            $result = $this->toDoList->iseighth();
+
             if($i<6)
             {
+                $result = $this->toDoList->iseighth();
                 $this->assertFalse($result);
             }
-            else
+            elseif($i>7)
             {
+                $result = $this->toDoList->iseighth();
                 $this->assertTrue($result);
             }
 
         }
+    }
+
+    public function testsendEightItemEmail()
+    {
+        for ($i=0; $i<7; $i++) {
+            $item = new Item();
+            $item->setName("testItem" . $i);
+            $item->setContent("testContent");
+            $item->setCreatedAt();
+            $this->toDoList->addItem($item);
+        }
+        $this->emailSenderService->expects($this->any())
+            ->method('emailSender')
+            ->willReturn(true);
+        $result = $this->toDoList->sendEightItemEmail();
+        $this->assertTrue($result);
     }
 
     public function testlastAddItem()

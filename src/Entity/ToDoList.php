@@ -45,6 +45,22 @@ class ToDoList
 
     private EmailSenderService $emailSenderService;
 
+    /**
+     * @return EmailSenderService
+     */
+    public function getEmailSenderService(): EmailSenderService
+    {
+        return $this->emailSenderService;
+    }
+
+    /**
+     * @param EmailSenderService $emailSenderService
+     */
+    public function setEmailSenderService(EmailSenderService $emailSenderService): void
+    {
+        $this->emailSenderService = $emailSenderService;
+    }
+
     public function __construct()
     {
         $this->items = new ArrayCollection();
@@ -130,15 +146,19 @@ class ToDoList
         return false;
     }
 
+    public function sendEightItemEmail(): bool
+    {
+        if(count($this->getItems()) === 8) {
+            return $this->emailSenderService->emailSender($this->getValidUser()->getEmail());
+        }
+        return false;
+    }
+
     public function iseighth(): bool
     {
         if(count($this->getItems()) > 7)
         {
-            if(count($this->getItems()) === 8)
-            {
-                $emailSenderService= new EmailSenderService();
-                $emailSenderService->emailSender($this->getValidUser()->getEmail());
-            }
+            $this->sendEightItemEmail();
             return true;
         }
         return false;
